@@ -28,4 +28,5 @@ public abstract class YamlObject implements Dumper{
 	public static final String TYPE_FLOAT    = "float";
 	public static final String TYPE_BOOLEAN  = "bool";
 	public static final String TYPE_BINARY   = "binary";
+	public static final String TYPE_NULL     = "null";
 }

@@ -33,6 +33,6 @@ public class TestYaml {
 		ByteArrayOutputStream out=new ByteArrayOutputStream();
 		YamlWriter writer=cfg.newWriter(out);
 		scalar.dump(writer);
-		assertArrayEquals(out.toByteArray(),"12345".getBytes());
+		assertArrayEquals(out.toByteArray(),"12345\n".getBytes());
 	}
 }

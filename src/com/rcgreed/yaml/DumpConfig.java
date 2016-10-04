@@ -3,17 +3,20 @@ package com.rcgreed.yaml;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class DumpConfig {
 	public final static DumpConfig defaultConfig = new DumpConfig();
 	public int indent;
 	public boolean showStart, showEnd;
-	public Map<String, String> tagMappinig;
+	public DateFormat dateFormat;
 	static {
-		defaultConfig.indent = 2;
-		defaultConfig.showEnd = false;
-		defaultConfig.showStart = false;
+		defaultConfig.indent     = 2;
+		defaultConfig.showEnd    = false;
+		defaultConfig.showStart  = false;
+		defaultConfig.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S Z");
 
 	}
 
@@ -136,6 +139,10 @@ public class DumpConfig {
 
 					@Override
 					public void indent() throws YamlExecption {
+						if (level == 0) {
+							first=false;
+							return;
+						}
 						try {
 							if (first) {
 								first = false;
@@ -143,13 +150,10 @@ public class DumpConfig {
 									out.write('\n');
 								} else {
 									// reach here if parent type is sequence
-									byte[] sp = ByteHelper.space(config.indent - 1);
-									out.write(sp);
+									//byte[] sp = ByteHelper.space(config.indent - 1);
+									//out.write(sp);
 									return;
 								}
-							}
-							if (level == 0) {
-								return;
 							}
 							out.write(space);
 						} catch (IOException e) {
@@ -184,6 +188,11 @@ public class DumpConfig {
 			} catch (IOException e) {
 				throw new YamlExecption(e);
 			}
+		}
+
+		@Override
+		public void writeDate(Date date) throws YamlExecption {
+			write(config.dateFormat.format(date).getBytes());
 		}
 	}
 

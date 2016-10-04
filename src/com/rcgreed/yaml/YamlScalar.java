@@ -46,4 +46,17 @@ public class YamlScalar extends YamlObject {
 		}
 		writer.write(data);
 	}
+	public final static YamlObject NullScalar=new YamlObject(TYPE_NULL) {
+		
+		@Override
+		public void dump(YamlWriter writer) throws YamlExecption {
+			if(isTagShow()){
+				writer.tag(getTagName());
+				writer.write(' ');
+			}
+			//writer.write(new byte[]{'~','\n'});
+			writer.write('~');
+			writer.write('\n');
+		}
+	};
 }
