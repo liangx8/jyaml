@@ -1,21 +1,27 @@
 package com.rcgreed.yaml;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 
 public class Yaml {
 	private DumpConfig dcfg=DumpConfig.defaultConfig;
-	private Convertion convertion=new BaseConversion();
+	final private BaseConversion bc=new BaseConversion();
+	public Yaml() {
+		bc.register(new CollectionConversion());
+	}
 	public Yaml withDumpConfig(DumpConfig cfg){
-		Yaml y=new Yaml();
-		y.dcfg=cfg;
-		return y;
+		dcfg=cfg;
+		return this;
 	}
 	public void dump(OutputStream out,Object obj) throws YamlExecption{
-		YamlObject yobj=convertion.convert(obj);
+		YamlObject yobj=bc.convert(obj,null);
 		yobj.dump(dcfg.newWriter(out));
 	}
-	public Yaml setConvertion(Convertion convertion) {
-		this.convertion = convertion;
+	public Yaml registerConvertion(Conversion convertion) {
+		bc.register(convertion);;
 		return this;
+	}
+	public void load(InputStream in,Class<?> clz) throws YamlExecption{
+		
 	}
 }

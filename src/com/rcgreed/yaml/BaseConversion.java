@@ -2,16 +2,32 @@ package com.rcgreed.yaml;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class BaseConversion implements Convertion {
-
+public class BaseConversion implements Conversion {
+	private final ArrayList<Conversion> listConversion=new ArrayList<>();
 	@Override
-	public YamlObject convert(Object obj) throws YamlExecption {
-		return any(obj);
+	public YamlObject convert(Object obj,Conversion parent) throws YamlExecption {
+		
+		YamlObject yobj=null;
+		yobj=any(obj);
+		if(yobj==null){
+			throw new YamlExecption(String.format("BaseConversion: Unable to convert class %s", obj.getClass().getName()));
+		}
+		return yobj;
+	}
+	public void register(Conversion c){
+		listConversion.add(c);
 	}
 
 	private YamlObject any(Object obj) throws YamlExecption {
+		for(Conversion c:listConversion){
+			YamlObject yobj = c.convert(obj,this);
+			if(yobj != null){
+				return yobj;
+			}
+		}
 		if (obj instanceof Integer || obj instanceof Short || obj instanceof Long) {
 			Number n = (Number) obj;
 			return new YamlScalar(n.longValue());
@@ -41,7 +57,7 @@ public class BaseConversion implements Convertion {
 				return map;
 			}
 		}
-		throw new YamlExecption(String.format("unable to convert class %s", obj.getClass().getName()));
+		return null;
 	}
 
 	private YamlMapping mapping(Object obj) throws YamlExecption {
@@ -49,7 +65,7 @@ public class BaseConversion implements Convertion {
 		YamlMapping map = new YamlMapping(obj.getClass().getName());
 		Field fields[] = clz.getFields();
 		if(fields.length==0){
-			throw new YamlExecption(String.format("Not field in class %s", clz.getName()));
+			throw new YamlExecption(String.format("No field in class %s", clz.getName()));
 		}
 		try {
 			for (Field f : fields) {

@@ -2,6 +2,7 @@ package test.com.rcgreed.yaml;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.rcgreed.yaml.DumpConfig;
@@ -37,7 +38,16 @@ public class TestRun {
 		e.countIn=true;
 		e.when=new Date();
 		e.remark=mstr;
-		Object[] ary=new Object[]{1,e,3,shortary,5,new Date(),intary,longary,floatary,doubleary,strary,new Date(),boolary,integerary,dateary};
+		ArrayList<Float> lf=new ArrayList<>();
+		lf.add(2.17f);
+		lf.add(3.14f);
+		lf.add(1.414f);
+		ArrayList<Object> any=new ArrayList<>();
+		any.add(213.4);
+		any.add("雪山狮子");
+		any.add(lf);
+		e.any=any;
+		Object[] ary=new Object[]{1,3,shortary,5,new Date(),intary,longary,floatary,doubleary,strary,new Date(),boolary,integerary,dateary,e};
 		return ary;
 	}
 	private static YamlObject oldTest() throws YamlExecption{
@@ -73,5 +83,6 @@ public class TestRun {
 		public boolean countIn;
 		public Date when,update;
 		public String remark;
+		public ArrayList<Object> any;
 	}
 }
