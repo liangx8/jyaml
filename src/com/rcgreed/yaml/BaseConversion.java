@@ -44,7 +44,7 @@ public class BaseConversion implements Conversion {
 		}
 		
 		if (obj instanceof Date){
-			return new YamlDateScalar((Date)obj);
+			return new YamlScalar((Date)obj);
 		}
 		if (obj.getClass().isArray()) {
 			YamlSequence seq = sequence(obj);

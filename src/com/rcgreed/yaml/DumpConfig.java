@@ -5,7 +5,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class DumpConfig {
 	public final static DumpConfig defaultConfig = new DumpConfig();
@@ -188,11 +187,6 @@ public class DumpConfig {
 			} catch (IOException e) {
 				throw new YamlExecption(e);
 			}
-		}
-
-		@Override
-		public void writeDate(Date date) throws YamlExecption {
-			write(config.dateFormat.format(date).getBytes());
 		}
 	}
 

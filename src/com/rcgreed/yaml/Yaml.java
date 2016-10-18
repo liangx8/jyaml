@@ -3,9 +3,14 @@ package com.rcgreed.yaml;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import com.rcgreed.yaml.loader.LoaderChain;
+import com.rcgreed.yaml.loader.LoaderConfig;
+import com.rcgreed.yaml.loader.YamlReader;
+
 public class Yaml {
 	private DumpConfig dcfg=DumpConfig.defaultConfig;
 	final private BaseConversion bc=new BaseConversion();
+	final private LoaderChain tl=new LoaderChain();
 	public Yaml() {
 		bc.register(new CollectionConversion());
 	}
@@ -18,10 +23,10 @@ public class Yaml {
 		yobj.dump(dcfg.newWriter(out));
 	}
 	public Yaml registerConvertion(Conversion convertion) {
-		bc.register(convertion);;
+		bc.register(convertion);
 		return this;
 	}
-	public void load(InputStream in,Class<?> clz) throws YamlExecption{
-		
+	public Object load(InputStream in,Class<?> clz) throws YamlExecption{
+		return tl.setConfig(new LoaderConfig()).load(clz, new YamlReader(in),false);
 	}
 }

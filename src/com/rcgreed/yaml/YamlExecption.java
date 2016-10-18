@@ -13,4 +13,7 @@ public class YamlExecption extends Throwable {
 	public YamlExecption(String message) {
 		super(message);
 	}
+	public YamlExecption(long lineNumber,String message){
+		super(String.format("Parse input error at line %d, message: %s", lineNumber,message));
+	}
 }

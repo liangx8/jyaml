@@ -14,7 +14,6 @@ public interface YamlWriter {
 	void write(int c) throws YamlExecption;
 	void stringModifier() throws YamlExecption;
 	void writeKey(String key) throws YamlExecption;
-	void writeDate(Date date) throws YamlExecption;
 	Indention indent(int type);
 	public static interface Indention{
 		void indent() throws YamlExecption;

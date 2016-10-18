@@ -84,5 +84,6 @@ public class TestRun {
 		public Date when,update;
 		public String remark;
 		public ArrayList<Object> any;
+		
 	}
 }

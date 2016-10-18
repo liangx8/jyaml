@@ -1,5 +1,6 @@
 package com.rcgreed.yaml;
 
+import java.util.Date;
 import java.util.List;
 
 import com.rcgreed.yaml.YamlWriter.Indention;
@@ -21,6 +22,11 @@ public class YamlScalar extends YamlObject {
 	public YamlScalar(String v){
 		super(TYPE_STRING);
 		data=new ByteHelper().fromString(v);
+	}
+	public YamlScalar(Date v){
+		super("date");
+		long d=v.getTime();
+		data=new ByteHelper().fromLong(d);
 	}
 
 	@Override
