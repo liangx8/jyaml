@@ -1,32 +1,51 @@
 package com.rcgreed.yaml;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.rcgreed.yaml.loader.LoaderChain;
-import com.rcgreed.yaml.loader.LoaderConfig;
-import com.rcgreed.yaml.loader.YamlReader;
+import com.rcgreed.yaml.Yaml.Dumper;
+import com.rcgreed.yaml.dump.DumpConfig;
+import com.rcgreed.yaml.dump.RootRepresenter;
+import com.rcgreed.yaml.dump.YamlWriter;
+import com.rcgreed.yaml.node.Node;
 
 public class Yaml {
-	private DumpConfig dcfg=DumpConfig.defaultConfig;
-	final private BaseConversion bc=new BaseConversion();
-	final private LoaderChain tl=new LoaderChain();
-	public Yaml() {
-		bc.register(new CollectionConversion());
+	public interface Dumper{
+		Dumper setConfig(DumpConfig config);
+		void dump(OutputStream out,Object obj) throws YamlExecption;
 	}
-	public Yaml withDumpConfig(DumpConfig cfg){
-		dcfg=cfg;
-		return this;
-	}
-	public void dump(OutputStream out,Object obj) throws YamlExecption{
-		YamlObject yobj=bc.convert(obj,null);
-		yobj.dump(dcfg.newWriter(out));
-	}
-	public Yaml registerConvertion(Conversion convertion) {
-		bc.register(convertion);
-		return this;
-	}
-	public Object load(InputStream in,Class<?> clz) throws YamlExecption{
-		return tl.setConfig(new LoaderConfig()).load(clz, new YamlReader(in),false);
+	public Dumper newDumper(){
+		return new Dumper() {
+			
+			@Override
+			public Dumper setConfig(final DumpConfig config) {
+				return new Dumper() {
+					
+					@Override
+					public Dumper setConfig(DumpConfig config) {
+						throw new RuntimeException("do not call me");
+					}
+					
+					@Override
+					public void dump(OutputStream out, Object obj) throws YamlExecption {
+						RootRepresenter rr=new RootRepresenter();
+						Node n=rr.represent(obj);
+						YamlWriter w=config.newWriter(out);
+						n.present(w);
+						
+						
+					}
+				};
+			}
+			
+			@Override
+			public void dump(OutputStream out, Object obj) throws YamlExecption {
+				RootRepresenter rr=new RootRepresenter();
+				Node n=rr.represent(obj);
+				DumpConfig config=new DumpConfig();
+				YamlWriter w=config.newWriter(out);
+				n.present(w);
+				
+			}
+		};
 	}
 }
