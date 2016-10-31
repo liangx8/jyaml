@@ -10,10 +10,10 @@ import com.rcgreed.yaml.node.Node;
  */
 public interface PresenterConfig {
 	public static int FLOW_STYLE_BLOCK = 1;
-	public static int FLOW_STYLE_FLOW = 2;
-	public static int TAG_SHOW = 3;
-	public static int TAG_HIDDEN = 4;
-	public static int TAG_AUTO = 5;
+	public static int FLOW_STYLE_FLOW  = 2;
+	public static int TAG_SHOW         = 3;
+	public static int TAG_HIDDEN       = 4;
+	public static int TAG_AUTO         = 5;
 
 	public int tagMode();
 
@@ -34,19 +34,8 @@ public interface PresenterConfig {
 			}
 		};
 	}
-
-	public static PresenterConfig defaultPresenterConfig = new PresenterConfig() {
-
-		@Override
-		public int tagMode() {
-			return TAG_AUTO;
-		}
-
-		@Override
-		public int getFlowStyle() {
-			return FLOW_STYLE_BLOCK;
-		}
-
-	};
+	
+	public static PresenterConfig defaultPresenterConfig =
+			newPresenterConfig(TAG_AUTO, FLOW_STYLE_BLOCK);
 
 }

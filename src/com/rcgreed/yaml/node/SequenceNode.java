@@ -1,24 +1,15 @@
 package com.rcgreed.yaml.node;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.rcgreed.yaml.Tag;
 import com.rcgreed.yaml.YamlExecption;
 import com.rcgreed.yaml.dump.PresenterConfig;
 import com.rcgreed.yaml.dump.YamlWriter;
-import com.rcgreed.yaml.utils.YamlIterator;
 
-public abstract class SequenceNode extends Node {
-	public static String SeqTag = "!!seq";
-
-	@Override
-	public String getName() {
-		return SeqTag;
-	}
-
-	@Override
-	public Kind kind() {
-		return Kind.Sequence;
-	}
-
+public abstract class SequenceNode implements Node {
+	private ArrayList<Node> list=new ArrayList<>();
 	@Override
 	public void present(YamlWriter writer) throws YamlExecption {
 		if (presenterConfig().getFlowStyle() == PresenterConfig.FLOW_STYLE_BLOCK) {
@@ -34,13 +25,14 @@ public abstract class SequenceNode extends Node {
 
 	private void blockStyle(YamlWriter w) throws YamlExecption {
 		if (explictTag()) {
-			w.writeText(getName());
+			w.writeText(getTag().getName());
+			w.write(' ');
 		}
 		if (!w.nextLineIndent()) {
 			w.lineDone();
 			w.newLine();
 		}
-		YamlIterator<Node> itr = iterateNode();
+		Iterator<Node> itr = list.iterator();
 		while (itr.hasNext()) {
 			w.writeSeqEntry();
 			Node n = itr.next();
@@ -51,14 +43,19 @@ public abstract class SequenceNode extends Node {
 			}
 		}
 	}
+	public void add(Node n){
+		list.add(n);
+	}
+	public Node get(int idx){
+		return list.get(idx);
+	}
+	public int size(){
+		return list.size();
+	}
 
-	@Override
-	public boolean explictTag() {
-		if (presenterConfig().tagMode() == PresenterConfig.TAG_SHOW)
-			return true;
-		if (presenterConfig().tagMode() == PresenterConfig.TAG_AUTO) {
-			return getName() != SeqTag;
-		}
+
+	private boolean explictTag() {
+		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -66,28 +63,19 @@ public abstract class SequenceNode extends Node {
 	public boolean showQuestionMask() {
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		boolean first = true;
-		YamlIterator<Node> itr = iterateNode();
-		try {
-			StringBuilder sb = new StringBuilder(getName());
-			sb.append('[');
-			while (itr.hasNext()) {
-				if (first) {
-					first = false;
-				} else {
-					sb.append(",\n");
-				}
-				sb.append(itr.next().toString());
+	public static SequenceNode newInstance(){
+		return new SequenceNode() {
+			
+			@Override
+			public PresenterConfig presenterConfig() {
+				// TODO Auto-generated method stub
+				return null;
 			}
-			sb.append(']');
-			return sb.toString();
-		} catch (YamlExecption e) {
-			throw new RuntimeException(e);
-		}
+			
+			@Override
+			public Tag getTag() {
+				return Tag.SeqTag;
+			}
+		};
 	}
-
-	protected abstract YamlIterator<Node> iterateNode();
 }
