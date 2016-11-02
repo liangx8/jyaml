@@ -1,36 +1,28 @@
 package com.rcgreed.yaml.inceptor;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
+import java.util.HashMap;
 
 import com.rcgreed.yaml.Definition;
 import com.rcgreed.yaml.Tag;
 import com.rcgreed.yaml.YamlExecption;
 import com.rcgreed.yaml.dump.PresenterConfig;
-import com.rcgreed.yaml.node.ScalarNode;
 
-public class Context implements MapScalarKeyInceptor, MapScalarValueInceptor, SequenceScalarInterceptor, TagInceptor,
-		PresenterConfigInceptor {
+public class Context
+		implements MapScalarKeyInceptor, MapScalarValueInceptor, SequenceScalarValueInterceptor, TagInceptor {
 	final private Linked<MapScalarKeyInceptor> keyInceptors = new Linked<>();
 	final private Linked<MapScalarValueInceptor> valueInceptors = new Linked<>();
-	final private Linked<SequenceScalarInterceptor> sequenceScalarIncepteros = new Linked<>();
+	final private Linked<SequenceScalarValueInterceptor> sequenceScalarIncepteros = new Linked<>();
 	final private Linked<TagInceptor> tagInceptors = new Linked<>();
-	private PresenterConfig defaultConfig;
-	private PresenterConfigInceptor pci = new PresenterConfigInceptor() {
-
-		@Override
-		public PresenterConfig getConfig(Class<?> clz) {
-			return PresenterConfig.defaultPresenterConfig;
-		}
-	};
+	private PresenterConfig defaultConfig = PresenterConfig.defaultPresenterConfig;
+	private HashMap<Class<?>, PresenterConfig> configMap = new HashMap<>();
 
 	public void setPresenterConfig(PresenterConfig cfg) {
 		defaultConfig = cfg;
 	}
 
-	public void setPresenterConfigInceptor(PresenterConfigInceptor inceptor) {
-		pci = inceptor;
+	public void putPresenterConfigInceptor(Class<?>key,PresenterConfig inceptor) {
+		configMap.put(key, inceptor);
 	}
 
 	public void addMapScalarKeyInceptor(MapScalarKeyInceptor inceptor) {
@@ -41,7 +33,7 @@ public class Context implements MapScalarKeyInceptor, MapScalarValueInceptor, Se
 		valueInceptors.add(inceptor);
 	}
 
-	public void addSequenceScalarInceptor(SequenceScalarInterceptor inceptor) {
+	public void addSequenceScalarInceptor(SequenceScalarValueInterceptor inceptor) {
 		sequenceScalarIncepteros.add(inceptor);
 	}
 
@@ -49,128 +41,70 @@ public class Context implements MapScalarKeyInceptor, MapScalarValueInceptor, Se
 		tagInceptors.add(inceptor);
 	}
 
-	public Context() {
-		keyInceptors.add(new MapScalarKeyInceptor() {
-
-			@Override
-			public String incept(Class<?> targetClz, Object mapKey) {
-				return (String) mapKey;
-			}
-		});
-		valueInceptors.add(new MapScalarValueInceptor() {
-
-			@Override
-			public String incept(Class<?> targetClz, ScalarNode key, Class<?> clz, Object value) {
-				if (clz == Date.class)
-					return Definition.timestampFormat.format((Date) value);
-
-				if (clz == String.class)
-					return (String) value;
-				return
-						value.toString();
-			}
-		});
-		sequenceScalarIncepteros.add(new SequenceScalarInterceptor() {
-
-			@Override
-			public String incept(Class<?> targetClz, Class<?> clz, Object value) {
-				if (clz == Date.class)
-					return Definition.timestampFormat.format((Date) value);
-
-				if (clz == String.class)
-					return (String) value;
-				return value.toString();
-			}
-		});
-		tagInceptors.add(new TagInceptor() {
-
-			@Override
-			public Tag incept(Class<?> clz,Tag org) {
-/*				if (Collection.class.isAssignableFrom(clz) || Map.class.isAssignableFrom(clz)) {
-					return null;
-				}
-				if (clz.isArray())
-					return Tag.SeqTag;
-				if (clz == int.class || clz == short.class || clz == long.class ||
-						clz == Integer.class || clz == Short.class || clz == Long.class)
-					return Tag.IntTag;
-				if (clz == float.class || clz == double.class || clz == Float.class || clz == Double.class)
-					return Tag.FloatTag;
-				if (clz == boolean.class || clz==Boolean.class)
-					return Tag.BoolTag;
-				if (clz == String.class) {
-					return Tag.StrTag;
-				}
-				if (clz == Date.class) {
-					return Tag.DateTag;
-				}
-				if (clz.getFields().length > 0) {
-					return new Tag() {
-
-						@Override
-						public String getName() {
-							return "!" + clz.getName();
-						}
-
-						@Override
-						public Kind kind() {
-							return Tag.Kind.Mapping;
-						}
-
-					};
-				}
-*/
-				return org;
-			}
-		});
-	}
-
+	// TagInceptor
 	@Override
-	public Tag incept(Class<?> clz,Tag org) throws YamlExecption {
+	public Tag incept(Class<?> clz, Tag org) throws YamlExecption {
 		for (TagInceptor ti : tagInceptors) {
-			Tag t = ti.incept(clz,org);
+			Tag t = ti.incept(clz, org);
 			if (t != null)
 				return t;
 		}
 		return org;
 	}
 
+	// SequenceScalarValueIncerpter
 	@Override
 	public String incept(Class<?> targetClz, Class<?> clz, Object seqEntry) throws YamlExecption {
-		for (SequenceScalarInterceptor ssi : sequenceScalarIncepteros) {
+		for (SequenceScalarValueInterceptor ssi : sequenceScalarIncepteros) {
 			String v = ssi.incept(targetClz, clz, seqEntry);
 			if (v != null)
 				return v;
 		}
 		if (clz == String.class)
 			return (String) seqEntry;
+		if (clz == Date.class) {
+			return Definition.timestampFormat.format(seqEntry);
+		}
 		return seqEntry.toString();
 	}
 
+	// MapScalarValueInceptor implements
 	@Override
-	public String incept(Class<?> targetClz, ScalarNode key, Class<?> clz, Object value) throws YamlExecption {
+	public String incept(Class<?> targetClz, Object key, Class<?> clz, Object value) throws YamlExecption {
 		for (MapScalarValueInceptor msvi : valueInceptors) {
 			String v = msvi.incept(targetClz, key, clz, value);
 			if (v != null) {
 				return v;
 			}
 		}
+		if (clz == Date.class) {
+			return Definition.timestampFormat.format(value);
+		}
 		if (clz == String.class)
 			return (String) value;
 		return value.toString();
 	}
 
+	// MapScalarKeyInceptor implements
 	@Override
-	public String incept(Class<?> targetClz, Object mapKey) {
-		// TODO Auto-generated method stub
-		return null;
+	public String incept(Class<?> targetClz, Object mapKey) throws YamlExecption {
+		if (mapKey instanceof String) {
+			for (MapScalarKeyInceptor mski : keyInceptors) {
+				String v = mski.incept(targetClz, mapKey);
+				if (v != null) {
+					return v;
+				}
+			}
+			return (String) mapKey;
+		}
+		return null; // 只有当 只 Map.class 中才有机会跑到这里.
 	}
 
-	@Override
 	public PresenterConfig getConfig(Class<?> clz) {
-		PresenterConfig pc = pci.getConfig(clz);
-		if (pc == null)
+		if (clz == null)
 			return defaultConfig;
+		PresenterConfig pc=configMap.get(clz);
+		if(pc==null) return defaultConfig;
 		return pc;
 	}
 }

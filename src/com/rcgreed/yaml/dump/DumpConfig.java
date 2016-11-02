@@ -167,6 +167,7 @@ public class DumpConfig {
 
 		@Override
 		public void close() throws IOException {
+			newLine();
 			w.close();
 		}
 	}
