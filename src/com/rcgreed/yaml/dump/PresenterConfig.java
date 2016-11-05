@@ -18,7 +18,7 @@ public interface PresenterConfig {
 	public int tagMode();
 
 	public int getFlowStyle();
-
+	public static class Builder{
 	public static PresenterConfig newPresenterConfig(final int tm,final int fs) {
 		return new PresenterConfig() {
 
@@ -29,7 +29,6 @@ public interface PresenterConfig {
 
 			@Override
 			public int getFlowStyle() {
-				// TODO Auto-generated method stub
 				return fs;
 			}
 		};
@@ -37,5 +36,5 @@ public interface PresenterConfig {
 	
 	public static PresenterConfig defaultPresenterConfig =
 			newPresenterConfig(TAG_AUTO, FLOW_STYLE_BLOCK);
-
+	}
 }

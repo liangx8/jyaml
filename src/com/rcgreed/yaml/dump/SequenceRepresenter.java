@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 import java.util.Iterator;
 
 import com.rcgreed.yaml.Tag;
-import com.rcgreed.yaml.utils.Helper;
-import com.rcgreed.yaml.utils.Pair;
 
 public class SequenceRepresenter extends AbstractSequenceRepresenter {
 	@Override
@@ -14,19 +12,20 @@ public class SequenceRepresenter extends AbstractSequenceRepresenter {
 	}
 
 	@Override
-	protected Iterator<Pair<Class<?>, Object>> getDate(Class<?> arrayClass, Object array) {
-		final Class<?> comType=arrayClass.getComponentType();
-		final int total=Array.getLength(array);
-		return new Iterator<Pair<Class<?>,Object>>() {
+	protected Iterator<ClazzValue> getData(ClazzValue carray) {
+		final Class<?> comType=carray.first().getComponentType();
+		final int total=Array.getLength(carray.second());
+		final Object array=carray.second();
+		return new Iterator<ClazzValue>() {
 			int idx=0;
 			@Override
-			public Pair<Class<?>, Object> next() {
-				Object v=Array.get(array, idx);
+			public ClazzValue next() {
+				final Object v=Array.get(array, idx);
 				idx++;
 				if(comType==Object.class){
-					return Helper.newPair(v.getClass(), v);
+					return new ClazzValue(v.getClass(),v);
 				}
-				return Helper.newPair(comType, v);
+				return new ClazzValue(comType,v);
 			}
 			
 			@Override

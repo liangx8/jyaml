@@ -38,7 +38,7 @@ public abstract class ScalarNode implements Node {
 	public String toString() {
 		return getValue();
 	}
-	public static ScalarNode newInstance(final Tag tag,final String value,PresenterConfig cfg){
+	public static ScalarNode newInstance(final Tag tag,final String value,final PresenterConfig cfg){
 		if(tag.kind()!= Tag.Kind.Scalar){
 			throw new RuntimeException("wrong logical"+tag.getName());
 		}

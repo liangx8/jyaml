@@ -3,8 +3,6 @@ package com.rcgreed.yaml;
 import java.util.Calendar;
 import java.util.Random;
 
-import com.rcgreed.yaml.utils.Pair;
-
 public class EntityUtils {
 	private static Random r=new Random();
 	public static Expense sampleExpense(){

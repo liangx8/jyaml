@@ -22,7 +22,9 @@ public abstract class SequenceNode implements Node{
 	private void blockStyle(YamlWriter w) throws YamlExecption {
 		if (explictTag()) {
 			w.writeText(getTag().getName());
-			w.write(' ');
+		}
+		if(!w.nextLineIndent()){
+			w.newLine();
 		}
 		YamlIterator itr = iterator();
 		while (itr.hasNext()) {

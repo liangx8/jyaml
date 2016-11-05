@@ -1,16 +1,17 @@
 package com.rcgreed.yaml.node;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 
 import com.rcgreed.yaml.Tag;
 import com.rcgreed.yaml.YamlExecption;
 import com.rcgreed.yaml.dump.PresenterConfig;
 import com.rcgreed.yaml.dump.YamlWriter;
+import com.rcgreed.yaml.utils.Helper;
+import com.rcgreed.yaml.utils.Pair;
 
 public abstract class MappingNode implements Node {
-	final private HashMap<Node, Node> data = new HashMap<>();
+	protected abstract YamlIterator getData();
 
 	@Override
 	public boolean showQuestionMask() {
@@ -22,12 +23,12 @@ public abstract class MappingNode implements Node {
 			writer.writeText(getTag().getName());
 			writer.newLine();
 		}
-		Iterator<Map.Entry<Node, Node>> itr = data.entrySet().iterator();
+		YamlIterator itr = getData();
 		if (!itr.hasNext())
 			return;
 		while (true) {
-			Map.Entry<Node, Node> entry = itr.next();
-			Node key = entry.getKey();
+			Pair<Node,Node> entry = itr.next();
+			Node key = entry.first();
 			boolean questionMask = key.showQuestionMask();
 
 			if (questionMask) {
@@ -44,7 +45,7 @@ public abstract class MappingNode implements Node {
 			if(questionMask&&(!writer.nextLineIndent())){
 				throw new RuntimeException("程序错误");
 			}
-			entry.getValue().present(writer.next());
+			entry.second().present(writer.next());
 			if (!itr.hasNext())
 				return;
 			writer.lineDone();
@@ -53,9 +54,7 @@ public abstract class MappingNode implements Node {
 
 	}
 
-	public void put(Node key, Node value) {
-		data.put(key, value);
-	}
+	public abstract void put(Node key, Node value);
 
 	private boolean explictTag() {
 		PresenterConfig cfg = presenterConfig();
@@ -78,12 +77,12 @@ public abstract class MappingNode implements Node {
 		flowStyle(writer);
 	}
 
-	public static MappingNode newInstance(PresenterConfig cfg) {
+	public static MappingNode newInstance(final PresenterConfig cfg) {
+		final ArrayList<Pair<Node,Node>> list=new ArrayList<>();
 		return new MappingNode() {
 
 			@Override
 			public PresenterConfig presenterConfig() {
-				// TODO Auto-generated method stub
 				return cfg;
 			}
 
@@ -91,6 +90,33 @@ public abstract class MappingNode implements Node {
 			public Tag getTag() {
 				return Tag.MapTag;
 			}
+
+			@Override
+			protected YamlIterator getData() {
+				final Iterator<Pair<Node,Node>> itr=list.iterator();
+				return new YamlIterator() {
+					
+					@Override
+					public Pair<Node, Node> next() throws YamlExecption {
+						return itr.next();
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return itr.hasNext();
+					}
+				};
+			}
+
+			@Override
+			public void put(Node key, Node value) {
+				list.add(Helper.newPair(key, value));
+				
+			}
 		};
+	}
+	public static interface YamlIterator{
+		boolean hasNext();
+		Pair<Node,Node> next() throws YamlExecption;
 	}
 }

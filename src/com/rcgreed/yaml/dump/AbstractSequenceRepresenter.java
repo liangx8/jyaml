@@ -10,12 +10,12 @@ import com.rcgreed.yaml.node.Node;
 import com.rcgreed.yaml.node.ScalarNode;
 import com.rcgreed.yaml.node.SequenceNode;
 import com.rcgreed.yaml.node.SequenceNode.YamlIterator;
-import com.rcgreed.yaml.utils.Pair;
 
 public abstract class AbstractSequenceRepresenter implements Representer {
 
 	@Override
-	public Node represent(Class<?> clz, Object obj, Context ctx, Representer base) throws YamlExecption {
+	public Node represent(final ClazzValue cv,final Context ctx,final Representer base) throws YamlExecption {
+		final Class<?> clz =cv.first();
 		if(pass(clz)) return null;
 		Tag tag=getTag(clz);
 		final Tag ftag=ctx.incept(clz, tag);
@@ -39,19 +39,19 @@ public abstract class AbstractSequenceRepresenter implements Representer {
 
 			@Override
 			protected YamlIterator iterator() {
-				return new InnerIterator(clz, getDate(clz, obj), ctx, base);
+				return new InnerIterator(clz, getData(cv), ctx, base);
 			}
 		};
 	}
 	protected abstract boolean pass(Class<?> targetClass);
-	protected abstract Iterator<Pair<Class<?>,Object> >getDate(Class<?> arrayClass,Object array);
+	protected abstract Iterator<ClazzValue >getData(ClazzValue array);
 	protected abstract Tag getTag(Class<?> clz);
 	private static class InnerIterator implements YamlIterator{
-		final Iterator<Pair<Class<?>,Object> > data;
+		final Iterator<ClazzValue > data;
 		final Context ctx;
 		final Representer base;
 		final Class<?> parentClass;
-		public InnerIterator(Class<?> pClass,Iterator<Pair<Class<?>,Object> > v,Context context,Representer rpr) {
+		public InnerIterator(Class<?> pClass,Iterator<ClazzValue > v,Context context,Representer rpr) {
 			data=v;
 			ctx=context;
 			base=rpr;
@@ -64,7 +64,7 @@ public abstract class AbstractSequenceRepresenter implements Representer {
 
 		@Override
 		public Node next() throws YamlExecption {
-			Pair<Class<?>,Object> p=data.next();
+			ClazzValue p=data.next();
 			Tag tag = null;
 //			if (subTy.isArray())
 //				tag = Tag.SeqTag;
@@ -83,10 +83,10 @@ public abstract class AbstractSequenceRepresenter implements Representer {
 				tag = Tag.DateTag;
 			}
 			if (tag != null) {
-				return	ScalarNode.newInstance(tag, ctx.incept(parentClass, subTy, p.second()), ctx.getConfig(subTy));
+				return	ScalarNode.newInstance(tag, ctx.incept(parentClass, p), ctx.getConfig(subTy));
 			}
 
-			return base.represent(subTy, p.second(), ctx, base);
+			return base.represent(p, ctx, base);
 		}
 		
 	}

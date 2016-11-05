@@ -5,5 +5,5 @@ import com.rcgreed.yaml.inceptor.Context;
 import com.rcgreed.yaml.node.Node;
 
 public interface Representer{
-	Node represent(Class<?>clz,Object obj,Context ctx,Representer base) throws YamlExecption;
+	Node represent(ClazzValue valaue,Context ctx,Representer base) throws YamlExecption;
 }

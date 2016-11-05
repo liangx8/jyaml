@@ -3,8 +3,6 @@ package com.rcgreed.yaml.dump;
 import java.util.Iterator;
 
 import com.rcgreed.yaml.Tag;
-import com.rcgreed.yaml.utils.Helper;
-import com.rcgreed.yaml.utils.Pair;
 
 public class IteratorRepresenter extends AbstractSequenceRepresenter {
 
@@ -14,18 +12,18 @@ public class IteratorRepresenter extends AbstractSequenceRepresenter {
 	}
 
 	@Override
-	protected Iterator<Pair<Class<?>, Object>> getDate(Class<?> arrayClass, Object array) {
-		return new Iterator<Pair<Class<?>,Object>>() {
+	protected Iterator<ClazzValue> getData(final ClazzValue cv) {
+		return new Iterator<ClazzValue>() {
 			
 			@Override
-			public Pair<Class<?>, Object> next() {
-				Object v=((Iterator<?>)array).next();
-				return Helper.newPair(v.getClass(), v);
+			public ClazzValue next() {
+				final Object v=((Iterator<?>)cv.second()).next();
+				return new ClazzValue(v.getClass(),v);
 			}
 			
 			@Override
 			public boolean hasNext() {
-				return ((Iterator<?>)array).hasNext();
+				return ((Iterator<?>)cv.second()).hasNext();
 			}
 		};
 	}
@@ -34,6 +32,6 @@ public class IteratorRepresenter extends AbstractSequenceRepresenter {
 	protected Tag getTag(Class<?> clz) {
 		return Tag.SeqTag;
 	}
-
+	
 
 }

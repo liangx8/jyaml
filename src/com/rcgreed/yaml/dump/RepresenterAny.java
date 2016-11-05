@@ -20,18 +20,19 @@ public class RepresenterAny implements Representer {
 		representers.add(new IteratorRepresenter());
 	}
 	@Override
-	public Node represent(Class<?> clz, Object obj, Context ctx, Representer base) throws YamlExecption {
+	public Node represent(ClazzValue cv, Context ctx, Representer base) throws YamlExecption {
 		for(Representer rp:representers){
-			Node n=rp.represent(clz, obj, ctx, this);
+			Node n=rp.represent(cv, ctx, this);
 			if(n!=null){
 				return n;
 			}
 		}
-		throw YamlExecption.unableHandle(clz);
+		throw YamlExecption.unableHandle(cv.first());
 	}
 	private static class ScalarRepresenter implements Representer{
 		@Override
-		public Node represent(Class<?> clz, Object obj, Context ctx, Representer base) throws YamlExecption {
+		public Node represent(ClazzValue cv, Context ctx, Representer base) throws YamlExecption {
+			Class<?> clz=cv.first();
 			if (Collection.class.isAssignableFrom(clz) || Map.class.isAssignableFrom(clz) || clz.isArray()) {
 				return null;
 			}
@@ -50,7 +51,10 @@ public class RepresenterAny implements Representer {
 				tag= Tag.DateTag;
 			}
 			if (tag==null) return null;
-			return ScalarNode.newInstance(tag, ctx.incept(null, clz, obj),ctx.getConfig(clz));
+			if(base != null){
+				throw new RuntimeException("有错误");
+			}
+			return ScalarNode.newInstance(tag, ctx.incept(null, cv),ctx.getConfig(clz));
 
 		}
 	}

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.rcgreed.yaml.Definition;
 import com.rcgreed.yaml.Tag;
 import com.rcgreed.yaml.YamlExecption;
+import com.rcgreed.yaml.dump.ClazzValue;
 import com.rcgreed.yaml.dump.PresenterConfig;
 
 public class Context
@@ -14,7 +15,7 @@ public class Context
 	final private Linked<MapScalarValueInceptor> valueInceptors = new Linked<>();
 	final private Linked<SequenceScalarValueInterceptor> sequenceScalarIncepteros = new Linked<>();
 	final private Linked<TagInceptor> tagInceptors = new Linked<>();
-	private PresenterConfig defaultConfig = PresenterConfig.defaultPresenterConfig;
+	private PresenterConfig defaultConfig = PresenterConfig.Builder.defaultPresenterConfig;
 	private HashMap<Class<?>, PresenterConfig> configMap = new HashMap<>();
 
 	public void setPresenterConfig(PresenterConfig cfg) {
@@ -54,35 +55,35 @@ public class Context
 
 	// SequenceScalarValueIncerpter
 	@Override
-	public String incept(Class<?> targetClz, Class<?> clz, Object seqEntry) throws YamlExecption {
+	public String incept(Class<?> targetClz, ClazzValue value) throws YamlExecption {
 		for (SequenceScalarValueInterceptor ssi : sequenceScalarIncepteros) {
-			String v = ssi.incept(targetClz, clz, seqEntry);
+			String v = ssi.incept(targetClz, value);
 			if (v != null)
 				return v;
 		}
-		if (clz == String.class)
-			return (String) seqEntry;
-		if (clz == Date.class) {
-			return Definition.timestampFormat.format(seqEntry);
+		if (value.first() == String.class)
+			return (String) value.second();
+		if (value.first() == Date.class) {
+			return Definition.timestampFormat.format(value.second());
 		}
-		return seqEntry.toString();
+		return value.second().toString();
 	}
 
 	// MapScalarValueInceptor implements
 	@Override
-	public String incept(Class<?> targetClz, Object key, Class<?> clz, Object value) throws YamlExecption {
+	public String incept(Class<?> targetClz, Object key, ClazzValue value) throws YamlExecption {
 		for (MapScalarValueInceptor msvi : valueInceptors) {
-			String v = msvi.incept(targetClz, key, clz, value);
+			String v = msvi.incept(targetClz, key, value);
 			if (v != null) {
 				return v;
 			}
 		}
-		if (clz == Date.class) {
-			return Definition.timestampFormat.format(value);
+		if (value.first() == Date.class) {
+			return Definition.timestampFormat.format(value.second());
 		}
-		if (clz == String.class)
-			return (String) value;
-		return value.toString();
+		if (value.first() == String.class)
+			return (String) value.second();
+		return value.second().toString();
 	}
 
 	// MapScalarKeyInceptor implements

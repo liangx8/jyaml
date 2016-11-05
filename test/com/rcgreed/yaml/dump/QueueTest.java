@@ -1,6 +1,7 @@
 package com.rcgreed.yaml.dump;
 
 import com.rcgreed.yaml.inceptor.Linked;
+import com.rcgreed.yaml.utils.Pair;
 
 public class QueueTest {
 
@@ -13,5 +14,7 @@ public class QueueTest {
 			System.out.println(i);
 		}
 	}
-
+	public static Pair<Class<?>,Object> a(Class<?> cc){
+		return null;
+	}
 }
