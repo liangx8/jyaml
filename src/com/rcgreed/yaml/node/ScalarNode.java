@@ -12,8 +12,14 @@ public abstract class ScalarNode implements Node {
 			writer.writeText(getTag().getName());
 			writer.write(' ');
 		}
-		if(ss==null)
-			ss=getValue().split("\n");
+		if(ss==null){
+			String sv=getValue();
+			if (sv==null){
+				ss=new String[0];
+			} else
+				ss=sv.split("\n");
+		}
+		if(ss.length==0) return;
 		if(ss.length==1){
 			writer.writeText(ss[0]);
 			return;
@@ -28,7 +34,11 @@ public abstract class ScalarNode implements Node {
 	@Override
 	public boolean showQuestionMask() {
 		if(ss==null){
-			ss=getValue().split("\n");
+			String sv=getValue();
+			if (sv==null){
+				ss=new String[0];
+			} else
+				ss=sv.split("\n");
 		}
 		if(ss.length>1) return true;
 		return presenterConfig().tagMode()==PresenterConfig.TAG_SHOW;

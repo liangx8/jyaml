@@ -48,7 +48,7 @@ public abstract class AbstractMappingRepresenter implements Representer {
 			
 			@Override
 			public void put(Node key, Node value) {
-				throw new RuntimeException("do call me");
+				throw new RuntimeException("do not call me");
 			}
 			
 			@Override
