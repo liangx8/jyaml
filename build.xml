@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<project name="helloProject" default="compile" basedir=".">
+    <description>Test project</description>
+        <property name="src" location="src/" />
+        <property name="bin" location="bin/" />
+<target name="init">
+<mkdir dir="${bin}" />
+</target>
+    <target name="compile" depends="init">
+        <javac srcdir="${src}"  destdir="${bin}" deprecation="yes"/>
+    </target>
+    <target name="clean" description="clean up">
+        <delete dir="${bin}" />
+    </target>
+<target name="run" depends="compile">
+<java classname="bid.rcgreed.ok.Main" classpath="bin/" />
+</target>
+
+</project>
